@@ -17,7 +17,7 @@ lua first using luaposix, but the version of the package on openwrt is way too o
 Setup a REDIRECT rule something like this:
 
 ```
-iptables -t nat -D zone_lan_prerouting -p tcp -s 10.6.6.149 --dport 443 -j REDIRECT --to-port 8081
+iptables -t nat -I zone_lan_prerouting -p tcp -s 10.6.6.149 --dport 443 -j REDIRECT --to-port 8081
 ```
 
 Execute this tool:
