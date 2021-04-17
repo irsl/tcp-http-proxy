@@ -7,6 +7,7 @@
 #include <sys/types.h> 
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <sys/wait.h>
 
 #include <linux/netfilter_ipv4.h>
 
@@ -161,6 +162,9 @@ void receive_connections(int server_socket) {
         mperror("accept"); 
       }
 
+      // reaping potential zombie children to free up resources
+      waitpid(-1, NULL, WNOHANG);
+
       ip_header_address = inet_ntoa(cli.sin_addr);
       tcp_header_port = cli.sin_port;
       printf("Acccepted a client connection from (%s:%d)\n", ip_header_address, tcp_header_port); 
@@ -169,6 +173,9 @@ void receive_connections(int server_socket) {
       if (error == 0) {
         orig_ip_address = inet_ntoa(orig_addr.sin_addr);
         orig_port = orig_addr.sin_port;
+#ifdef NETWORK_BYTE_ORDER
+        orig_port = htons(orig_port);
+#endif
         printf("Original address before NAT (%s:%d)\n", orig_ip_address, orig_port); 
       } else {
         perror("original_dst"); // we dont exit here
